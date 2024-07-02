@@ -123,7 +123,7 @@ func (f *Field) Validate(value interface{}, allValidators map[string]validators.
 	for name, constants := range f.Validators {
 		err.Validator = name
 		f.logging.DEBUG("Validator: ", name, constants)
-		if name != "" {
+		if name == "" {
 			f.logging.DEBUG("Name of the validator is not given: ", name)
 			err.Validator = name
 		}
