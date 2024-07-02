@@ -3,7 +3,7 @@ package errorHandler
 import (
 	"errors"
 	"fmt"
-	"github.com/ashbeelghouri/jsonschematics/utils"
+	"github.com/DScale-io/jsonschematics/utils"
 	"log"
 	"strings"
 )

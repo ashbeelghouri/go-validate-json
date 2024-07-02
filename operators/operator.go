@@ -1,6 +1,6 @@
 package operators
 
-import "github.com/ashbeelghouri/jsonschematics/utils"
+import "github.com/DScale-io/jsonschematics/utils"
 
 type Operators struct {
 	OpFunctions map[string]Op

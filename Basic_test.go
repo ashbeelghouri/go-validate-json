@@ -1,8 +1,8 @@
 package jsonschematics
 
 import (
-	v2 "github.com/ashbeelghouri/jsonschematics/data/v2"
-	"github.com/ashbeelghouri/jsonschematics/utils"
+	v2 "github.com/DScale-io/jsonschematics/data/v2"
+	"github.com/DScale-io/jsonschematics/utils"
 	"log"
 	"os"
 	"testing"

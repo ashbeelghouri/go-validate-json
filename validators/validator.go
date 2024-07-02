@@ -1,6 +1,6 @@
 package validators
 
-import "github.com/ashbeelghouri/jsonschematics/utils"
+import "github.com/DScale-io/jsonschematics/utils"
 
 type Validators struct {
 	ValidationFns map[string]Validator

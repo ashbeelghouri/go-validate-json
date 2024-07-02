@@ -14,7 +14,7 @@
 To install the package, use the following command:
 
 ```sh
-go get github.com/ashbeelghouri/jsonschematics
+go get github.com/DScale-io/jsonschematics@latest
 ```
 
 ## Usage
@@ -30,7 +30,7 @@ package main
 
 import (
     "fmt"
-    "github.com/ashbeelghouri/jsonschematics"
+    "github.com/DScale-io/jsonschematics"
 )
 
 func main() {
@@ -61,7 +61,7 @@ package main
 
 import (
     "fmt"
-    "github.com/ashbeelghouri/jsonschematics"
+    "github.com/DScale-io/jsonschematics"
 )
 
 func main() {
@@ -84,7 +84,7 @@ package main
 
 import (
     "fmt"
-    "github.com/ashbeelghouri/jsonschematics"
+    "github.com/DScale-io/jsonschematics"
 )
 
 func main() {
@@ -113,7 +113,7 @@ package main
 
 import (
     "fmt"
-    "github.com/ashbeelghouri/jsonschematics"
+    "github.com/DScale-io/jsonschematics"
 )
 
 func main() {
@@ -150,7 +150,7 @@ package main
 
 import (
     "fmt"
-    "github.com/ashbeelghouri/jsonschematics"
+    "github.com/DScale-io/jsonschematics"
 )
 
 func main() {
@@ -195,7 +195,7 @@ package main
 
 import (
     "fmt"
-    "github.com/ashbeelghouri/jsonschematics"
+    "github.com/DScale-io/jsonschematics"
 )
 
 func main() {
@@ -218,7 +218,7 @@ package main
 
 import (
     "fmt"
-    "github.com/ashbeelghouri/jsonschematics"
+    "github.com/DScale-io/jsonschematics"
 )
 
 func main() {
@@ -246,7 +246,7 @@ package main
 import (
     "fmt"
     "strings"
-    "github.com/ashbeelghouri/jsonschematics"
+    "github.com/DScale-io/jsonschematics"
 )
 
 func main() {
@@ -269,8 +269,8 @@ func Capitalize(i interface{}, attributes map[string]interface{}) *interface{} {
 
 ### Example JSON Files
 
-- [Schema](https://github.com/ashbeelghouri/jsonschematics/blob/master/json/schema.json)
-- [Data](https://github.com/ashbeelghouri/jsonschematics/blob/master/json/data.json)
+- [Schema](https://github.com/DScale-io/jsonschematics/blob/master/json/schema.json)
+- [Data](https://github.com/DScale-io/jsonschematics/blob/master/json/data.json)
 
 ### Structs
 
@@ -427,7 +427,7 @@ go 1.22.1
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/ashbeelghouri/jsonschematics/blob/master/LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/DScale-io/jsonschematics/blob/master/LICENSE) file for details.
 
 ## Future Plans
 

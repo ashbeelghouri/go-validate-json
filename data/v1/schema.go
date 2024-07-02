@@ -2,10 +2,10 @@ package v1
 
 import (
 	"encoding/json"
-	v0 "github.com/ashbeelghouri/jsonschematics/data/v0"
-	"github.com/ashbeelghouri/jsonschematics/operators"
-	"github.com/ashbeelghouri/jsonschematics/utils"
-	"github.com/ashbeelghouri/jsonschematics/validators"
+	v0 "github.com/DScale-io/jsonschematics/data/v0"
+	"github.com/DScale-io/jsonschematics/operators"
+	"github.com/DScale-io/jsonschematics/utils"
+	"github.com/DScale-io/jsonschematics/validators"
 	"log"
 	"os"
 )
