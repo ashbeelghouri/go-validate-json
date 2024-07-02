@@ -1,4 +1,4 @@
-# jsonschematics
+# Dscale.io [jsonschematics]
 
 `jsonschematics` is a Go package designed to validate and manipulate JSON data structures using schematics.
 
