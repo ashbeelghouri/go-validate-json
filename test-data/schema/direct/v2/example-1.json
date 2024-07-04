@@ -77,5 +77,13 @@
     "operators": [{
       "name": "Capitalize"
     }]
+  }, {
+    "depends_on": [],
+    "target_key": "user.url",
+    "description": "",
+    "validators": [{
+      "name": "StatusCodeCheck",
+      "error": "status code is incorrect"
+    }]
   }]
 }
