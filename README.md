@@ -407,7 +407,7 @@ If you want to get the single error, you can define the error format like below:
 #### Go Version
 
 ```go
-go 1.22.1
+go 1.21
 ```
 
 ## Contributing
