@@ -60,5 +60,8 @@ func (v *Validators) BasicValidators() {
 	v.RegisterValidator("ArrayLengthMin", ArrayLengthMin)
 	v.RegisterValidator("StringsTakenFromOptions", StringsTakenFromOptions)
 
+	//url
+	v.RegisterValidator("StatusCodeCheck", StatusCodeCheck)
+
 	v.Logger.DEBUG("basic validators loaded")
 }
