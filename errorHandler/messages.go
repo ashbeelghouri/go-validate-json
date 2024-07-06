@@ -11,10 +11,15 @@ import (
 type Locale string
 type Target string
 
+type ErrorL10n struct {
+	Validator map[string]map[Locale]string
+}
+
 type Error struct {
 	DataTarget string
 	Message    map[Locale]string
 	Validator  string
+	L10n       ErrorL10n
 	Value      interface{}
 	ID         interface{}
 	Data       map[string]interface{}
@@ -22,6 +27,17 @@ type Error struct {
 
 type Errors struct {
 	Messages map[Target]Error
+}
+
+func (e *Error) AddL10n(v string, local string, localeValidator string) {
+	errL10n := ErrorL10n{
+		Validator: map[string]map[Locale]string{
+			v: {
+				Locale(local): localeValidator,
+			},
+		},
+	}
+	e.L10n = errL10n
 }
 
 func (e *Error) AddMessage(local string, message string) {

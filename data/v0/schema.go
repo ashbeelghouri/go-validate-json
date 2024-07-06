@@ -43,10 +43,15 @@ type Field struct {
 	logging               utils.Logger
 }
 
+type ConstantL10n struct {
+	Name  map[string]interface{} `json:"name"`
+	Error map[string]interface{} `json:"error"`
+}
+
 type Constant struct {
 	Attributes map[string]interface{} `json:"attributes"`
 	Error      string                 `json:"error"`
-	L10n       map[string]interface{} `json:"l10n"`
+	L10n       ConstantL10n           `json:"l10n"`
 }
 
 func (s *Schematics) Configs() {
@@ -159,11 +164,17 @@ func (f *Field) Validate(value interface{}, allValidators map[string]validators.
 			}
 
 			if f.L10n != nil {
-				for locale, msg := range constants.L10n {
-					log.Println(msg)
+				for locale, msg := range constants.L10n.Error {
 					if msg != nil {
-						f.logging.DEBUG("L10n: ", locale, msg)
+						f.logging.DEBUG("Error L10n: ", locale, msg)
 						err.AddMessage(locale, msg.(string))
+					}
+				}
+
+				for local, v := range constants.L10n.Name {
+					if v != nil {
+						f.logging.DEBUG("Validator L10n: ", local, v)
+						err.AddL10n(name, local, v.(string))
 					}
 				}
 			}
