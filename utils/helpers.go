@@ -119,12 +119,21 @@ func StringsInSlice(s []string, slice []string) bool {
 	return false
 }
 
+func IsValidRegex(pattern string) bool {
+	_, err := regexp.Compile(pattern)
+	return err == nil
+}
+
 func ConvertKeyToRegex(key string) string {
+	if !IsValidRegex(key) {
+		return key
+	}
 	// Escape special regex characters in the key except for *
 	escapedKey := regexp.QuoteMeta(key)
 	// Replace * with \d+ to match array indices
 	regexPattern := strings.ReplaceAll(escapedKey, `\*`, `\d+`)
 	// Add start and end of line anchors
+
 	regexPattern = "^" + regexPattern + "$"
 	return regexPattern
 }
