@@ -27,27 +27,6 @@ func NotEmpty(i interface{}, attr map[string]interface{}) error {
 	return nil
 }
 
-func StringTakenFromOptions(i interface{}, attr map[string]interface{}) error {
-	isString := IsString(i, attr)
-	if isString != nil {
-		return isString
-	}
-	str := i.(string)
-
-	if _, ok := attr["options"].([]interface{}); !ok {
-		return errors.New("options are required for the validator to work")
-	}
-	options := attr["options"].([]interface{})
-	for _, op := range options {
-		if o, ok := op.(string); ok {
-			if o == str {
-				return nil
-			}
-		}
-	}
-	return errors.New("string is out of the options")
-}
-
 func LIKE(i interface{}, attr map[string]interface{}) error {
 	isString := IsString(i, attr)
 	if isString != nil {

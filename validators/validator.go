@@ -22,7 +22,6 @@ func (v *Validators) BasicValidators() {
 	// String Validators
 	v.RegisterValidator("IsString", IsString)
 	v.RegisterValidator("NotEmpty", NotEmpty)
-	v.RegisterValidator("StringTakenFromOptions", StringTakenFromOptions)
 	v.RegisterValidator("IsEmail", IsEmail)
 	v.RegisterValidator("MaxLengthAllowed", MaxLengthAllowed)
 	v.RegisterValidator("MinLengthAllowed", MinLengthAllowed)
@@ -58,7 +57,8 @@ func (v *Validators) BasicValidators() {
 	//Arrays
 	v.RegisterValidator("ArrayLengthMax", ArrayLengthMax)
 	v.RegisterValidator("ArrayLengthMin", ArrayLengthMin)
-	v.RegisterValidator("StringsTakenFromOptions", StringsTakenFromOptions)
+	v.RegisterValidator("StringsExistsInOptions", StringsExistsInOptions)
+	v.RegisterValidator("StringInOptions", StringInOptions)
 
 	v.Logger.DEBUG("basic validators loaded")
 }
