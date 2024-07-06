@@ -39,11 +39,16 @@ type Field struct {
 	AdditionalInformation map[string]interface{} `json:"additional_information"`
 }
 
+type ComponentLocale struct {
+	Name  map[string]interface{} `json:"name"`
+	Error map[string]interface{} `json:"error"`
+}
+
 type Component struct {
 	Name       string                 `json:"name"`
 	Attributes map[string]interface{} `json:"attributes"`
 	Error      string                 `json:"error"`
-	L10n       map[string]interface{} `json:"l10n"`
+	L10n       ComponentLocale        `json:"l10n"`
 }
 
 func LoadJsonSchemaFile(path string) (*v0.Schematics, error) {
@@ -119,13 +124,21 @@ func transformSchema(schema Schema) *v0.Schema {
 	return &baseSchema
 }
 
+func CreateConstantLocale(locale ComponentLocale) v0.ConstantL10n {
+	var c = v0.ConstantL10n{
+		Name:  locale.Name,
+		Error: locale.Error,
+	}
+	return c
+}
+
 func transformComponents(comp []Component) map[string]v0.Constant {
 	con := make(map[string]v0.Constant)
 	for _, c := range comp {
 		con[c.Name] = v0.Constant{
 			Attributes: c.Attributes,
 			Error:      c.Error,
-			L10n:       c.L10n,
+			L10n:       CreateConstantLocale(c.L10n),
 		}
 	}
 	return con

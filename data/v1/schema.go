@@ -41,10 +41,15 @@ type Field struct {
 	AdditionalInformation map[string]interface{} `json:"additional_information"`
 }
 
+type ComponentLocal struct {
+	Name  map[string]interface{}
+	Error map[string]interface{}
+}
+
 type Component struct {
 	Attributes map[string]interface{} `json:"attributes"`
 	Error      string                 `json:"error"`
-	L10n       map[string]interface{} `json:"l10n"`
+	L10n       ComponentLocal         `json:"l10n"`
 }
 
 func (s *Schematics) Configs() {
@@ -134,13 +139,22 @@ func transformSchema(schema Schema) *v0.Schema {
 	return &baseSchema
 }
 
+func CreateConstantLocale(locale ComponentLocal) v0.ConstantL10n {
+	var c = v0.ConstantL10n{
+		Name:  locale.Name,
+		Error: locale.Error,
+	}
+	return c
+}
+
 func transformComponents(comp map[string]Component) map[string]v0.Constant {
 	con := make(map[string]v0.Constant)
 	for name, c := range comp {
+
 		con[name] = v0.Constant{
 			Attributes: c.Attributes,
 			Error:      c.Error,
-			L10n:       c.L10n,
+			L10n:       CreateConstantLocale(c.L10n),
 		}
 	}
 	return con

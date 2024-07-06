@@ -40,33 +40,37 @@ func ArrayLengthMin(i interface{}, attr map[string]interface{}) error {
 	return nil
 }
 
-func StringsTakenFromOptions(i interface{}, attr map[string]interface{}) error {
+func StringInOptions(i interface{}, attr map[string]interface{}) error {
+	isString := IsString(i, attr)
+	if isString != nil {
+		return isString
+	}
+	str := i.(string)
+
+	if _, ok := attr["options"].([]interface{}); !ok {
+		return errors.New("options are required for the validator to work")
+	}
+	options := attr["options"].([]interface{})
+	for _, op := range options {
+		if o, ok := op.(string); ok {
+			if o == str {
+				return nil
+			}
+		}
+	}
+	return errors.New("string is out of the options")
+}
+
+func StringsExistsInOptions(i interface{}, attr map[string]interface{}) error {
 	if !isArray(i) {
 		return errors.New("only arrays are allowed")
 	}
 	STRINGS := i.([]interface{})
 	for _, str := range STRINGS {
-		stringDoesNotExists := StringTakenFromOptions(str, attr)
+		stringDoesNotExists := StringInOptions(str, attr)
 		if stringDoesNotExists != nil {
 			return stringDoesNotExists
 		}
 	}
 	return nil
-}
-
-func SpecificStringIsProvidedInArray(i interface{}, attr map[string]interface{}) error {
-	if !isArray(i) {
-		return errors.New("only arrays are allowed")
-	}
-	if _, ok := attr["shouldExists"]; !ok {
-		return errors.New("attribute 'shouldExists' is not provided")
-	}
-	STRINGS := i.([]interface{})
-	shouldExist := attr["shouldExists"].(string)
-	for _, str := range STRINGS {
-		if str == shouldExist {
-			return nil
-		}
-	}
-	return fmt.Errorf("the string %s is not provided in the array", shouldExist)
 }

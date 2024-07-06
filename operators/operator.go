@@ -29,5 +29,8 @@ func (op *Operators) LoadBasicOperations() {
 	op.RegisterOperation("Multiply", Multiply)
 	op.RegisterOperation("Divide", Divide)
 
+	// arrays
+	op.RegisterOperation("ArrayOfObjToObj", ArrayOfObjToObj)
+
 	op.Logger.DEBUG("basic operations loaded")
 }

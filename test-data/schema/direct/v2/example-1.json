@@ -16,7 +16,12 @@
       },
       "error": "user's first name should have maximum 20 characters",
       "l10n": {
-        "ar": "سي شسيشسشسيش شسيشس شسيضصثضصث قفلربل ٦ع لبلا ثفق"
+        "name": {
+          "ar": "شسيشس"
+        },
+        "error": {
+          "ar": "سي شسيشسشسيش شسيشس شسيضصثضصث قفلربل ٦ع لبلا ثفق"
+        }
       }
     }],
     "operators": [{
