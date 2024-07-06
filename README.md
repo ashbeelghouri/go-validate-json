@@ -409,7 +409,7 @@ If you want to get the single error, you can define the error format like below:
 ##### v2@latest
 v2 is the lates schema version designed.
 below are the required fields listed
-```golang
+`` fl`golang
 fields <ARRAY> : [{
     required <BOOLEAN>
     depends_on <ARRAY OF STRINGS> : [] (can be empty)
@@ -422,6 +422,14 @@ fields <ARRAY> : [{
     }],
 }]
 ```
+###### Target Keys
+target key is the key of an array in the data on which operations need to be performed, which can be anything and also can be a regex for the key
+in jsonschematics, we are flattening the object and creating keys with combination of the nested map[string]interface, in result we can get the keys like: map[string]value
+examples:
+- user.profile.name
+- user.*.profile.name (* will be replaced by \d+)
+
+[NOTE] if the string for target is a valid regex then above * conversion wont happen as in regular expressions, the asterisk (*) is a quantifier that means "zero or more" of the preceding element
 
 
 #### Go Version
