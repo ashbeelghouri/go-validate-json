@@ -159,7 +159,8 @@ func (f *Field) Validate(value interface{}, allValidators map[string]validators.
 			}
 
 			if f.L10n != nil {
-				for locale, msg := range f.L10n {
+				for locale, msg := range constants.L10n {
+					log.Println(msg)
 					if msg != nil {
 						f.logging.DEBUG("L10n: ", locale, msg)
 						err.AddMessage(locale, msg.(string))
