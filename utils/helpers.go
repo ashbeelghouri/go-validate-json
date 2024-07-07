@@ -149,6 +149,13 @@ func FindMatchingKeys(data map[string]interface{}, keyPattern string) map[string
 	return matchingKeys
 }
 
+func GetFirstFromMap(mapped map[string]interface{}) interface{} {
+	for _, m := range mapped {
+		return m
+	}
+	return nil
+}
+
 func IsValidJson(content []byte) (string, interface{}) {
 	var arr []map[string]interface{}
 	var obj map[string]interface{}
@@ -229,4 +236,16 @@ func getJsonFileAsMapArray(content []byte) ([]map[string]interface{}, error) {
 		return nil, err
 	}
 	return data, nil
+}
+
+func CombineTwoMaps(map1 map[string]interface{}, map2 map[string]interface{}) map[string]interface{} {
+	if len(map1) < 1 {
+		map1 = make(map[string]interface{})
+	}
+
+	finalMap := map1
+	for key, m := range map2 {
+		finalMap[key] = m
+	}
+	return finalMap
 }

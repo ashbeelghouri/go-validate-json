@@ -21,12 +21,16 @@ type Schematics struct {
 	Separator  string
 	ArrayIdKey string
 	Locale     string
+	DB         map[string]interface{}
 	Logging    utils.Logger
 }
 
+// add this DB to the attributes as SCHEMA_GLOBAL_DB
+
 type Schema struct {
-	Version string              `json:"version"`
-	Fields  map[TargetKey]Field `json:"fields"`
+	Version string                 `json:"version"`
+	Fields  map[TargetKey]Field    `json:"fields"`
+	DB      map[string]interface{} `json:"DB"`
 }
 
 type Field struct {
@@ -35,6 +39,7 @@ type Field struct {
 	Name                  string                 `json:"name"`
 	Type                  string                 `json:"type"`
 	IsRequired            bool                   `json:"required"`
+	AddToDB               bool                   `json:"add_to_db"`
 	Description           string                 `json:"description"`
 	Validators            map[string]Constant    `json:"validators"`
 	Operators             map[string]Constant    `json:"operators"`
@@ -116,7 +121,9 @@ func (s *Schematics) LoadMap(schemaMap interface{}) error {
 	return nil
 }
 
-func (f *Field) Validate(value interface{}, allValidators map[string]validators.Validator, id *string) *errorHandler.Error {
+// if validators >>> if passed then do *
+
+func (f *Field) Validate(value interface{}, allValidators map[string]validators.Validator, id *string, db map[string]interface{}) *errorHandler.Error {
 	var err errorHandler.Error
 	err.Value = value
 	err.ID = id
@@ -154,6 +161,10 @@ func (f *Field) Validate(value interface{}, allValidators map[string]validators.
 			return &err
 		}
 
+		if constants.Attributes == nil {
+			constants.Attributes = make(map[string]interface{})
+		}
+		constants.Attributes["DB"] = db
 		fnError := fn(value, constants.Attributes)
 		f.logging.DEBUG("fnError: ", fnError)
 		if fnError != nil {
@@ -236,6 +247,9 @@ func (s *Schematics) ValidateObject(jsonData *map[string]interface{}, id *string
 		uniqueID = *id
 	}
 	s.Logging.DEBUG("after unique id")
+
+	db := s.Schema.GetDB(flatData)
+
 	var missingFromDependants []string
 	for target, field := range s.Schema.Fields {
 		field.logging = s.Logging
@@ -271,7 +285,7 @@ func (s *Schematics) ValidateObject(jsonData *map[string]interface{}, id *string
 		}
 
 		for key, value := range matchingKeys {
-			validationError := field.Validate(value, s.Validators.ValidationFns, &uniqueID)
+			validationError := field.Validate(value, s.Validators.ValidationFns, &uniqueID, db)
 			s.Logging.DEBUG(validationError)
 			if validationError != nil {
 				errorMessages.AddError(key, *validationError)
@@ -284,6 +298,29 @@ func (s *Schematics) ValidateObject(jsonData *map[string]interface{}, id *string
 		return &errorMessages
 	}
 	return nil
+}
+
+// Corrected and completed GetDB function
+func (s *Schema) GetDB(flatData map[string]interface{}) map[string]interface{} {
+	db := s.DB
+	for target, field := range s.Fields {
+		if field.AddToDB {
+			matchingKeys := utils.FindMatchingKeys(flatData, string(target))
+			if len(matchingKeys) < 2 {
+				mappedKey := utils.GetFirstFromMap(matchingKeys)
+				if mappedKey != nil {
+					db[string(target)] = mappedKey
+				}
+			} else if len(matchingKeys) > 0 {
+				var values []interface{}
+				for _, match := range matchingKeys {
+					values = append(values, match)
+				}
+				db[string(target)] = values
+			}
+		}
+	}
+	return db
 }
 
 func (s *Schematics) ValidateArray(jsonData []map[string]interface{}) *errorHandler.Errors {

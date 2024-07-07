@@ -17,12 +17,14 @@ type Schematics struct {
 	Separator  string
 	ArrayIdKey string
 	Locale     string
+	DB         map[string]interface{}
 	Logging    utils.Logger
 }
 
 type Schema struct {
-	Version string  `json:"version"`
-	Fields  []Field `json:"fields"`
+	Version string                 `json:"version"`
+	Fields  []Field                `json:"fields"`
+	DB      map[string]interface{} `json:"DB"`
 }
 
 type Field struct {
@@ -30,6 +32,7 @@ type Field struct {
 	DisplayName           string                 `json:"display_name"`
 	Name                  string                 `json:"name"`
 	TargetKey             string                 `json:"target_key"`
+	AddToDB               bool                   `json:"add_to_db"`
 	Type                  string                 `json:"type"`
 	IsRequired            bool                   `json:"required"`
 	Description           string                 `json:"description"`
@@ -100,18 +103,23 @@ func transformSchematics(s Schematics) *v0.Schematics {
 	baseSchematics.Validators.BasicValidators()
 	baseSchematics.Operators.LoadBasicOperations()
 	baseSchematics.Schema = *transformSchema(s.Schema)
+	if s.DB != nil {
+		baseSchematics.Schema.DB = utils.CombineTwoMaps(baseSchematics.Schema.DB, s.DB)
+	}
 	return &baseSchematics
 }
 
 func transformSchema(schema Schema) *v0.Schema {
 	var baseSchema v0.Schema
 	baseSchema.Version = schema.Version
+	baseSchema.DB = schema.DB
 	baseSchema.Fields = make(map[v0.TargetKey]v0.Field)
 
 	for _, field := range schema.Fields {
 		baseSchema.Fields[v0.TargetKey(field.TargetKey)] = v0.Field{
 			DependsOn:             field.DependsOn,
 			Name:                  field.Name,
+			AddToDB:               field.AddToDB,
 			Type:                  field.Name,
 			IsRequired:            field.IsRequired,
 			Description:           field.Description,

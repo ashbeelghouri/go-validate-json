@@ -1,14 +1,18 @@
 {
   "version": "2",
-  "fields": [{
+  "fields": [
+    {
     "name": "",
     "display_name": "",
     "required": false,
+    "add_to_db": true,
     "depends_on": [],
     "target_key": "user.profile.name.first",
     "description": "",
     "validators": [{
       "name": "IsString"
+    }, {
+      "name": "customFunc"
     }, {
       "name": "MaxLengthAllowed",
       "attributes": {
@@ -82,5 +86,8 @@
     "operators": [{
       "name": "Capitalize"
     }]
-  }]
+  }],
+  "DB": {
+    "test": 22
+  }
 }
