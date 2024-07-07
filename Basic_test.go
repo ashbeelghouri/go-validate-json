@@ -9,7 +9,7 @@ import (
 )
 
 func customFunc(i interface{}, attr map[string]interface{}) error {
-	log.Println("attributes are: ", attr)
+	log.Println("--------->>> ========== >>>>> attributes are: ", attr)
 	return nil
 }
 
