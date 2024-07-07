@@ -434,6 +434,47 @@ examples:
 
 [**NOTE**] if the string for target is a valid regex then above * conversion wont happen as in regular expressions, the asterisk (*) is a quantifier that means "zero or more" of the preceding element
 
+#### Add Custom Data
+- Add the global data inside the schematics right before you are executing the validate function, as it will propogate to the attributes of the function
+- You can add them in the main Schematics Object or add it to the schema file as well as if you want to keep the values from the data use "add_to_db" in schema file to add your value to attributes
+
+##### Example 1
+Adding Data in Schematics
+
+```go
+var s Schematics
+Schematics.DB = map[string]interface{}{
+    "my-data":"valueofthedata"
+}
+```
+##### Example 2
+Adding data globally in schema
+```json
+{   "fields": [...],
+    "DB": {
+        "test": 22
+      }
+}
+```
+
+##### Example 3
+Adding data from the json that is being validated
+```json
+{   "fields": [{
+        "name":"field name"
+        "target_key":"user.data",
+        "add_to_db": true,
+    }],
+    "DB": {
+        "test": 22
+      }
+}
+```
+
+**Results** Data will be propogated to the attributes map[string]interface{} like below under "DB" key.
+```go
+constants.Attributes["DB"] = db
+```
 
 #### Go Version
 
