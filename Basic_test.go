@@ -25,7 +25,7 @@ func TestV2Validate(t *testing.T) {
 		t.Error(err)
 	}
 	errs := schematics.Validate(jsonData)
-	log.Println(errs.GetStrings("en", "%message\n"))
+	log.Println(errs.GetStrings("ar", "%message\n"))
 }
 func NewFun(i interface{}, attr map[string]interface{}) error {
 	log.Println(i)

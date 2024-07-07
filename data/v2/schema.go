@@ -21,8 +21,9 @@ type Schematics struct {
 }
 
 type Schema struct {
-	Version string  `json:"version"`
-	Fields  []Field `json:"fields"`
+	Version string                 `json:"version"`
+	Fields  []Field                `json:"fields"`
+	DB      map[string]interface{} `json:"DB"`
 }
 
 type Field struct {
@@ -106,6 +107,7 @@ func transformSchematics(s Schematics) *v0.Schematics {
 func transformSchema(schema Schema) *v0.Schema {
 	var baseSchema v0.Schema
 	baseSchema.Version = schema.Version
+	baseSchema.DB = schema.DB
 	baseSchema.Fields = make(map[v0.TargetKey]v0.Field)
 
 	for _, field := range schema.Fields {
