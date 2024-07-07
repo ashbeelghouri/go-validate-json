@@ -9,7 +9,6 @@ import (
 	"github.com/ashbeelghouri/jsonschematics/validators"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -22,6 +21,7 @@ type Schematics struct {
 	Separator  string
 	ArrayIdKey string
 	Locale     string
+	DB         map[string]interface{}
 	Logging    utils.Logger
 }
 
@@ -160,6 +160,10 @@ func (f *Field) Validate(value interface{}, allValidators map[string]validators.
 			err.AddMessage("en", "validator not registered")
 			return &err
 		}
+
+		if constants.Attributes == nil {
+			constants.Attributes = make(map[string]interface{})
+		}
 		constants.Attributes["DB"] = db
 		fnError := fn(value, constants.Attributes)
 		f.logging.DEBUG("fnError: ", fnError)
@@ -281,10 +285,6 @@ func (s *Schematics) ValidateObject(jsonData *map[string]interface{}, id *string
 		}
 
 		for key, value := range matchingKeys {
-			if field.AddToDB {
-				s.Schema.DB[key] = value
-			}
-
 			validationError := field.Validate(value, s.Validators.ValidationFns, &uniqueID, db)
 			s.Logging.DEBUG(validationError)
 			if validationError != nil {
@@ -306,16 +306,17 @@ func (s *Schema) GetDB(flatData map[string]interface{}) map[string]interface{} {
 	for target, field := range s.Fields {
 		if field.AddToDB {
 			matchingKeys := utils.FindMatchingKeys(flatData, string(target))
-			if len(matchingKeys) > 0 {
-				if len(matchingKeys) > 1 {
-					var values []interface{}
-					for _, match := range matchingKeys {
-						values = append(values, flatData[match.(string)])
-					}
-					db[string(target)] = values
-				} else {
-					db[string(target)] = flatData[matchingKeys[strconv.Itoa(0)].(string)]
+			if len(matchingKeys) < 2 {
+				mappedKey := utils.GetFirstFromMap(matchingKeys)
+				if mappedKey != nil {
+					db[string(target)] = mappedKey
 				}
+			} else if len(matchingKeys) > 0 {
+				var values []interface{}
+				for _, match := range matchingKeys {
+					values = append(values, match)
+				}
+				db[string(target)] = values
 			}
 		}
 	}
