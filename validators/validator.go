@@ -65,6 +65,10 @@ func (v *Validators) BasicValidators() {
 
 	//locales
 	v.RegisterValidator("IsCountryValid", IsCountryValid)
+	v.RegisterValidator("IsEmiratesIDValid", IsEmiratesIDValid)
+
+	//fintech
+	v.RegisterValidator("IsValidIBAN", IsValidIBAN)
 
 	v.Logger.DEBUG("basic validators loaded")
 }
