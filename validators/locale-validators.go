@@ -3,6 +3,7 @@ package validators
 import (
 	"encoding/json"
 	"errors"
+	"github.com/DScale-io/jsonschematics/validators/archives"
 	"os"
 	"strings"
 )
@@ -22,7 +23,7 @@ func getCountriesList() *map[string]string {
 
 func IsCountryValid(i interface{}, _ map[string]interface{}) error {
 	userCountry := i.(string)
-	countries := getCountriesList()
+	countries := archives.GetCountries()
 
 	for code, country := range *countries {
 		uc := strings.ToLower(userCountry)

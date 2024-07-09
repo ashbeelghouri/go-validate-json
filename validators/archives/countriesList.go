@@ -1,3 +1,12 @@
+package archives
+
+import (
+	"encoding/json"
+	"log"
+)
+
+func GetCountries() *map[string]string {
+	jsonData := `
 {
   "AD": "Andorra",
   "AE": "United Arab Emirates",
@@ -251,4 +260,12 @@
   "ZA": "South Africa",
   "ZM": "Zambia",
   "ZW": "Zimbabwe"
+}
+    `
+
+	var countryMap map[string]string
+	if err := json.Unmarshal([]byte(jsonData), &countryMap); err != nil {
+		log.Println("Error unmarshalling Countries List:", err)
+		return nil
+	}
 }
