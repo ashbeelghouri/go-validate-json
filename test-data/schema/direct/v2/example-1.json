@@ -1,14 +1,18 @@
 {
-  "version": "1.1",
-  "fields": [{
+  "version": "2",
+  "fields": [
+    {
     "name": "",
     "display_name": "",
     "required": false,
+    "add_to_db": true,
     "depends_on": [],
     "target_key": "user.profile.name.first",
     "description": "",
     "validators": [{
       "name": "IsString"
+    }, {
+      "name": "customFunc"
     }, {
       "name": "MaxLengthAllowed",
       "attributes": {
@@ -16,7 +20,12 @@
       },
       "error": "user's first name should have maximum 20 characters",
       "l10n": {
-        "ar": "سي شسيشسشسيش شسيشس شسيضصثضصث قفلربل ٦ع لبلا ثفق"
+        "name": {
+          "ar": "شسيشس"
+        },
+        "error": {
+          "ar": "سي شسيشسشسيش شسيشس شسيضصثضصث قفلربل ٦ع لبلا ثفق"
+        }
       }
     }],
     "operators": [{
@@ -77,13 +86,8 @@
     "operators": [{
       "name": "Capitalize"
     }]
-  }, {
-    "depends_on": [],
-    "target_key": "user.url",
-    "description": "",
-    "validators": [{
-      "name": "StatusCodeCheck",
-      "error": "status code is incorrect"
-    }]
-  }]
+  }],
+  "DB": {
+    "test": 22
+  }
 }

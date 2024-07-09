@@ -1,4 +1,4 @@
-# Dscale.io [jsonschematics]
+# jsonschematics
 
 `jsonschematics` is a Go package designed to validate and manipulate JSON data structures using schematics.
 
@@ -14,7 +14,7 @@
 To install the package, use the following command:
 
 ```sh
-go get github.com/DScale-io/jsonschematics@latest
+go get github.com/ashbeelghouri/jsonschematics@latest
 ```
 
 ## Usage
@@ -30,7 +30,7 @@ package main
 
 import (
     "fmt"
-    "github.com/DScale-io/jsonschematics"
+    "github.com/ashbeelghouri/jsonschematics"
 )
 
 func main() {
@@ -61,7 +61,7 @@ package main
 
 import (
     "fmt"
-    "github.com/DScale-io/jsonschematics"
+    "github.com/ashbeelghouri/jsonschematics"
 )
 
 func main() {
@@ -84,7 +84,7 @@ package main
 
 import (
     "fmt"
-    "github.com/DScale-io/jsonschematics"
+    "github.com/ashbeelghouri/jsonschematics"
 )
 
 func main() {
@@ -113,7 +113,7 @@ package main
 
 import (
     "fmt"
-    "github.com/DScale-io/jsonschematics"
+    "github.com/ashbeelghouri/jsonschematics"
 )
 
 func main() {
@@ -150,7 +150,7 @@ package main
 
 import (
     "fmt"
-    "github.com/DScale-io/jsonschematics"
+    "github.com/ashbeelghouri/jsonschematics"
 )
 
 func main() {
@@ -195,7 +195,7 @@ package main
 
 import (
     "fmt"
-    "github.com/DScale-io/jsonschematics"
+    "github.com/ashbeelghouri/jsonschematics"
 )
 
 func main() {
@@ -218,7 +218,7 @@ package main
 
 import (
     "fmt"
-    "github.com/DScale-io/jsonschematics"
+    "github.com/ashbeelghouri/jsonschematics"
 )
 
 func main() {
@@ -246,7 +246,7 @@ package main
 import (
     "fmt"
     "strings"
-    "github.com/DScale-io/jsonschematics"
+    "github.com/ashbeelghouri/jsonschematics"
 )
 
 func main() {
@@ -269,8 +269,8 @@ func Capitalize(i interface{}, attributes map[string]interface{}) *interface{} {
 
 ### Example JSON Files
 
-- [Schema](https://github.com/DScale-io/jsonschematics/blob/master/json/schema.json)
-- [Data](https://github.com/DScale-io/jsonschematics/blob/master/json/data.json)
+- [Schema](https://github.com/ashbeelghouri/jsonschematics/blob/master/json/schema.json)
+- [Data](https://github.com/ashbeelghouri/jsonschematics/blob/master/json/data.json)
 
 ### Structs
 
@@ -381,9 +381,9 @@ If you want to get the single error, you can define the error format like below:
 
 #### List of Basic Validators
 
-| **String**                  | **Number**       | **Date**         | **Array**                    |**URL**          |
-|-----------------------------|------------------|------------------|------------------------------|-------          |
-| IsString                    | IsNumber         | IsValidDate      | ArrayLengthMax               | StatusCodeCheck |
+| **String**                  | **Number**       | **Date**         | **Array**                    |
+|-----------------------------|------------------|------------------|------------------------------|
+| IsString                    | IsNumber         | IsValidDate      | ArrayLengthMax               |
 | NotEmpty                    | MaxAllowed       | IsLessThanNow    | ArrayLengthMin               |
 | StringTakenFromOptions      | MinAllowed       | IsMoreThanNow    | StringsTakenFromOptions      |
 | IsEmail                     | InBetween        | IsBefore         |                              |
@@ -404,10 +404,82 @@ If you want to get the single error, you can define the error format like below:
 | LIKE                        |                  |                  |                              |
 | MatchRegex                  |                  |                  |                              |
 
+#### Schema
+
+##### v2@latest
+v2 is the lates schema version designed.
+below are the required fields listed
+```golang
+fields <ARRAY> : [{
+    required <BOOLEAN>
+    depends_on <ARRAY OF STRINGS> : [] (can be empty)
+    target_key <STRING>
+    validators <ARRAY OF OBJ>: [{
+        name <STRING>
+    }]
+    operators <ARRAY OF OBJ>: [{
+      "name" <STRING>
+    }],
+}]
+```
+
+###### Target Keys
+target key is the key of an array in the data on which operations need to be performed, which can be anything and also can be a regex for the key
+in jsonschematics, we are flattening the object and creating keys with combination of the nested map[string]interface, in result we can get the keys like: map[string]value
+examples:
+```sh
+- user.profile.name
+- user.*.profile.name (* will be replaced by \d+)
+```
+
+[**NOTE**] if the string for target is a valid regex then above * conversion wont happen as in regular expressions, the asterisk (*) is a quantifier that means "zero or more" of the preceding element
+
+#### Add Custom Data
+- Add the global data inside the schematics right before you are executing the validate function, as it will propogate to the attributes of the function
+- You can add them in the main Schematics Object or add it to the schema file as well as if you want to keep the values from the data use "add_to_db" in schema file to add your value to attributes
+
+##### Example 1
+Adding Data in Schematics
+
+```go
+var s Schematics
+Schematics.DB = map[string]interface{}{
+    "my-data":"valueofthedata"
+}
+```
+##### Example 2
+Adding data globally in schema
+```json
+{   "fields": [...],
+    "DB": {
+        "test": 22
+      }
+}
+```
+
+##### Example 3
+Adding data from the json that is being validated
+```json
+{   "fields": [{
+        "name":"field name"
+        "target_key":"user.data",
+        "add_to_db": true,
+    }],
+    "DB": {
+        "test": 22
+      }
+}
+```
+
+**Results** Data will be propogated to the attributes map[string]interface{} like below under "DB" key.
+```go
+constants.Attributes["DB"] = db
+```
+
 #### Go Version
 
 ```go
-go 1.21
+go 1.22.1
 ```
 
 ## Contributing
@@ -421,13 +493,25 @@ go 1.21
 
 ### Contributors
 
-<a href="https://github.com/ashbeelghouri">
-  <img src="https://avatars.githubusercontent.com/u/41609537?s=400&u=1b9ea072fc9a11acf32d86c5196a08f2696a458a&v=4" width="50px" height="50px"/>
-</a>
+<table style="border: none;">
+	<tbody>
+		<tr>
+			<td align="center">
+                <p><a href="https://github.com/ashbeelghouri"><img src="https://github.com/ashbeelghouri.png" height="60px" width="60px"/></a></p>
+				<p><a href="https://github.com/ashbeelghouri">Ashbeel Ghouri</a></p>
+			</td>
+            <td align="center">
+                <p><a href="https://github.com/neddodiallo"><img src="https://github.com/neddodiallo.png" height="60px" width="60px"/></a></p>
+				<p><a href="https://github.com/neddodiallo">Amadou Diallo</a></p>
+            </td>
+		</tr>
+	</tbody>
+</table>
+
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/DScale-io/jsonschematics/blob/master/LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/ashbeelghouri/jsonschematics/blob/master/LICENSE) file for details.
 
 ## Future Plans
 
