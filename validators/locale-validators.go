@@ -24,14 +24,15 @@ func getCountriesList() *map[string]string {
 func IsCountryValid(i interface{}, _ map[string]interface{}) error {
 	userCountry := i.(string)
 	countries := archives.GetCountries()
-	for code, country := range *countries {
-		uc := strings.ToLower(userCountry)
-		c := strings.ToLower(country)
-		cd := strings.ToLower(code)
-		if uc != c && uc != cd {
-			return errors.New("this is an invalid country")
+	if countries != nil {
+		for code, country := range *countries {
+			uc := strings.ToLower(userCountry)
+			c := strings.ToLower(country)
+			cd := strings.ToLower(code)
+			if uc != c && uc != cd {
+				return errors.New("this is an invalid country")
+			}
 		}
 	}
-
 	return nil
 }
