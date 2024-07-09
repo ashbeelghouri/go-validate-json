@@ -63,5 +63,8 @@ func (v *Validators) BasicValidators() {
 	//url
 	v.RegisterValidator("StatusCodeCheck", StatusCodeCheck)
 
+	//locales
+	v.RegisterValidator("IsCountryValid", IsCountryValid)
+
 	v.Logger.DEBUG("basic validators loaded")
 }
