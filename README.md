@@ -493,9 +493,21 @@ go 1.22.1
 
 ### Contributors
 
-<a href="https://github.com/ashbeelghouri">
-  <img src="https://avatars.githubusercontent.com/u/41609537?s=400&u=1b9ea072fc9a11acf32d86c5196a08f2696a458a&v=4" width="50px" height="50px"/>
-</a>
+<table style="border: none;">
+	<tbody>
+		<tr>
+			<td align="center">
+                <p><a href="https://github.com/ashbeelghouri"><img src="https://github.com/ashbeelghouri.png" height="60px" width="60px"/></a></p>
+				<p><a href="https://github.com/ashbeelghouri">Ashbeel Ghouri</a></p>
+			</td>
+            <td align="center">
+                <p><a href="https://github.com/neddodiallo"><img src="https://github.com/neddodiallo.png" height="60px" width="60px"/></a></p>
+				<p><a href="https://github.com/neddodiallo">Amadou Diallo</a></p>
+            </td>
+		</tr>
+	</tbody>
+</table>
+
 
 ## License
 
