@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
-	"regexp"
 	"strings"
 )
 
@@ -21,12 +20,6 @@ func getCountriesList() *map[string]string {
 	return &list
 }
 
-func IsValidEmiratesID(id string) bool {
-	// Regular expression to match the Emirates ID format
-	re := regexp.MustCompile(`^784-\d{4}-\d{7}-\d$`)
-	return re.MatchString(id)
-}
-
 func IsCountryValid(i interface{}, _ map[string]interface{}) error {
 	userCountry := i.(string)
 	countries := getCountriesList()
@@ -40,13 +33,5 @@ func IsCountryValid(i interface{}, _ map[string]interface{}) error {
 		}
 	}
 
-	return nil
-}
-
-func IsEmiratesIDValid(i interface{}, _ map[string]interface{}) error {
-	emiratesID := i.(string)
-	if !IsValidEmiratesID(emiratesID) {
-		return errors.New("invalid emirates id provided")
-	}
 	return nil
 }
