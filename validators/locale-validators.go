@@ -24,7 +24,6 @@ func getCountriesList() *map[string]string {
 func IsCountryValid(i interface{}, _ map[string]interface{}) error {
 	userCountry := i.(string)
 	countries := archives.GetCountries()
-
 	for code, country := range *countries {
 		uc := strings.ToLower(userCountry)
 		c := strings.ToLower(country)
