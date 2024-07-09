@@ -381,9 +381,9 @@ If you want to get the single error, you can define the error format like below:
 
 #### List of Basic Validators
 
-| **String**                  | **Number**       | **Date**         | **Array**                    |
-|-----------------------------|------------------|------------------|------------------------------|
-| IsString                    | IsNumber         | IsValidDate      | ArrayLengthMax               |
+| **String**                  | **Number**       | **Date**         | **Array**                    |**URL**          |
+|-----------------------------|------------------|------------------|------------------------------|-------          |
+| IsString                    | IsNumber         | IsValidDate      | ArrayLengthMax               | StatusCodeCheck |
 | NotEmpty                    | MaxAllowed       | IsLessThanNow    | ArrayLengthMin               |
 | StringTakenFromOptions      | MinAllowed       | IsMoreThanNow    | StringsTakenFromOptions      |
 | IsEmail                     | InBetween        | IsBefore         |                              |
