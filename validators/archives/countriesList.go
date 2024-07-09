@@ -268,4 +268,6 @@ func GetCountries() *map[string]string {
 		log.Println("Error unmarshalling Countries List:", err)
 		return nil
 	}
+
+	return &countryMap
 }
