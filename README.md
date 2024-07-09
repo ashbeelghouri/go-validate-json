@@ -267,11 +267,6 @@ func Capitalize(i interface{}, attributes map[string]interface{}) *interface{} {
 
 ## API Reference
 
-### Example JSON Files
-
-- [Schema](https://github.com/ashbeelghouri/jsonschematics/blob/master/json/schema.json)
-- [Data](https://github.com/ashbeelghouri/jsonschematics/blob/master/json/data.json)
-
 ### Structs
 
 #### Schematics
@@ -511,7 +506,7 @@ go 1.22.1
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/ashbeelghouri/jsonschematics/blob/master/LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## Future Plans
 
