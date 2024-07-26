@@ -22,6 +22,8 @@ type Schematics struct {
 	ArrayIdKey string
 	Locale     string
 	DB         map[string]interface{}
+	FlatData   map[string]interface{}
+	UnFlatData map[string]interface{}
 	Logging    utils.Logger
 }
 
@@ -45,6 +47,7 @@ type Field struct {
 	Operators             map[string]Constant    `json:"operators"`
 	L10n                  map[string]interface{} `json:"l10n"`
 	AdditionalInformation map[string]interface{} `json:"additional_information"`
+	Tags                  []string               `json:"tags"`
 	logging               utils.Logger
 }
 
@@ -58,6 +61,11 @@ type Constant struct {
 	Error      string                 `json:"error"`
 	L10n       ConstantL10n           `json:"l10n"`
 }
+
+//func (s *Schematics) autoTag() {
+//	s.Schema.Fields
+// add the search tags
+//}
 
 func (s *Schematics) Configs() {
 	if s.Logging.PrintDebugLogs {
@@ -198,11 +206,14 @@ func (f *Field) Validate(value interface{}, allValidators map[string]validators.
 func (s *Schematics) makeFlat(data map[string]interface{}) *map[string]interface{} {
 	var dMap utils.DataMap
 	dMap.FlattenTheMap(data, "", s.Separator)
+	s.FlatData = dMap.Data
 	return &dMap.Data
 }
 
 func (s *Schematics) deflate(data map[string]interface{}) map[string]interface{} {
-	return utils.DeflateMap(data, s.Separator)
+	unFlatData := utils.DeflateMap(data, s.Separator)
+	s.UnFlatData = unFlatData
+	return unFlatData
 }
 
 func (s *Schematics) Validate(jsonData interface{}) *errorHandler.Errors {
