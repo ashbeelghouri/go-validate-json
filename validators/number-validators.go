@@ -53,7 +53,8 @@ func convertToFloat64(i interface{}) *float64 {
 }
 
 func IsInteger(i interface{}, _ map[string]interface{}) error {
-	switch v := reflect.TypeOf(i).String() {
+	typeOfInterface := reflect.TypeOf(i).String()
+	switch typeOfInterface {
 	case "int":
 		return nil
 	case "int8":
@@ -81,7 +82,8 @@ func IsInteger(i interface{}, _ map[string]interface{}) error {
 }
 
 func IsFloat(i interface{}, _ map[string]interface{}) error {
-	switch v := reflect.TypeOf(i).String() {
+	typeOfInterface := reflect.TypeOf(i).String()
+	switch typeOfInterface {
 	case "float32":
 		return nil
 	case "float64":
