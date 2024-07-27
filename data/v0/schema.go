@@ -167,7 +167,7 @@ func (f *Field) Validate(value interface{}, allValidators map[string]validators.
 		constants.Attributes["DB"] = db
 		fnError := fn(value, constants.Attributes)
 		f.logging.DEBUG("fnError: ", fnError)
-		if fnError != nil {
+		if fnError != nil && fnError.Error() != ""  {
 			err.AddMessage("en", fnError.Error())
 			if constants.Error != "" {
 				f.logging.DEBUG("Custom Error is Defined", constants.Error)
