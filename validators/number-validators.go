@@ -21,31 +21,31 @@ var NumberTypes = map[string][]string{
 
 func convertToFloat64(i interface{}) *float64 {
 	var result float64
-	switch v := i.(type) {
-	case int:
+	switch v := reflect.TypeOf(i).String() {
+	case "int":
 		result = float64(v)
-	case int8:
+	case "int8":
 		result = float64(v)
-	case int16:
+	case "int16":
 		result = float64(v)
-	case int32:
+	case "int32":
 		result = float64(v)
-	case int64:
+	case "int64":
 		result = float64(v)
-	case uint:
+	case "uint":
 		result = float64(v)
-	case uint8:
+	case "uint8":
 		result = float64(v)
-	case uint16:
+	case "uint16":
 		result = float64(v)
-	case uint32:
+	case "uint32":
 		result = float64(v)
-	case uint64:
+	case "uint64":
 		result = float64(v)
-	case float32:
+	case "float32":
 		result = float64(v)
-	case float64:
-		result = float64(v)
+	case "float64":
+		result = v
 	default:
 		return nil
 	}
@@ -53,27 +53,43 @@ func convertToFloat64(i interface{}) *float64 {
 }
 
 func IsInteger(i interface{}, _ map[string]interface{}) error {
-	typeOfInterface := reflect.TypeOf(i).String()
-
-	for _, t := range NumberTypes["integer"] {
-		if t == typeOfInterface {
-			return nil
-		}
-	}
-
-	return errors.New("value is not an integer")
+	switch v := reflect.TypeOf(i).String() {
+	case "int":
+		return nil
+	case "int8":
+		return nil
+	case "int16":
+		return nil
+	case "int32":
+		return nil
+	case "int64":
+		return nil
+	case "uint":
+		return nil
+	case "uint8":
+		return nil
+	case "uint16":
+		return nil
+	case "uint32":
+		return nil
+	case "uint64":
+		return nil
+	default:
+		return errors.New("value is not an integer")
+	}	
+	return nil
 }
 
 func IsFloat(i interface{}, _ map[string]interface{}) error {
-	typeOfInterface := reflect.TypeOf(i).String()
-
-	for _, t := range NumberTypes["float"] {
-		if t == typeOfInterface {
-			return nil
-		}
-	}
-
-	return errors.New("value is not a floating number")
+	switch v := reflect.TypeOf(i).String() {
+	case "float32":
+		return nil
+	case "float64":
+		return nil
+	default:
+		return errors.New("value is not an integer")
+	}		
+	return nil
 }
 
 func IsNumber(i interface{}, attr map[string]interface{}) error {
