@@ -21,30 +21,30 @@ var NumberTypes = map[string][]string{
 
 func convertToFloat64(i interface{}) *float64 {
 	var result float64
-	switch v := reflect.TypeOf(i).String() {
-	case "int":
+	switch v := i.(type) {
+	case int:
 		result = float64(v)
-	case "int8":
+	case int8:
 		result = float64(v)
-	case "int16":
+	case int16:
 		result = float64(v)
-	case "int32":
+	case int32:
 		result = float64(v)
-	case "int64":
+	case int64:
 		result = float64(v)
-	case "uint":
+	case uint:
 		result = float64(v)
-	case "uint8":
+	case uint8:
 		result = float64(v)
-	case "uint16":
+	case uint16:
 		result = float64(v)
-	case "uint32":
+	case uint32:
 		result = float64(v)
-	case "uint64":
+	case uint64:
 		result = float64(v)
-	case "float32":
+	case float32:
 		result = float64(v)
-	case "float64":
+	case float64:
 		result = v
 	default:
 		return nil
