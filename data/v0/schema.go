@@ -143,7 +143,7 @@ func (f *Field) Validate(value interface{}, allValidators map[string]validators.
 		}
 		if f.IsRequired && value == nil {
 			err.Validator = "Required"
-			err.AddMessage("en", "this is a required field")
+			err.AddMessage("en", fmt.Sprintf("'%s' is a required field", f.DisplayName))
 			f.logging.DEBUG("Field is required but value is null")
 			return &err
 		}
@@ -258,7 +258,7 @@ func (s *Schematics) ValidateObject(jsonData *map[string]interface{}, id *string
 		s.Logging.DEBUG("matching keys --> ", matchingKeys)
 		if len(matchingKeys) == 0 {
 			if field.IsRequired {
-				baseError.AddMessage("en", "this field is required")
+				baseError.AddMessage("en", fmt.Sprintf("'%s' field is required", target))
 				errorMessages.AddError(string(target), baseError)
 			}
 			continue
