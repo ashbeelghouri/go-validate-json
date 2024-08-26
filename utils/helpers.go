@@ -28,27 +28,29 @@ func (d *DataMap) FlattenTheMap(data map[string]interface{}, prefix string, sepa
 		separator = "."
 	}
 	for key, value := range data {
-		newKey := key
-		if prefix != "" {
-			newKey = prefix + separator + key
-		}
-		switch reflect.TypeOf(value).Kind() {
-		case reflect.Map:
-			if nestedMap, ok := value.(map[string]interface{}); ok {
-				d.FlattenTheMap(nestedMap, newKey, separator)
+		if key != "" && value != nil {
+			newKey := key
+			if prefix != "" {
+				newKey = prefix + separator + key
 			}
-		case reflect.Slice:
-			s := reflect.ValueOf(value)
-			for i := 0; i < s.Len(); i++ {
-				arrayKey := newKey + separator + strconv.Itoa(i)
-				if nestedMap, ok := s.Index(i).Interface().(map[string]interface{}); ok {
-					d.FlattenTheMap(nestedMap, arrayKey, separator)
-				} else {
-					d.Data[arrayKey] = s.Index(i).Interface()
+			switch reflect.TypeOf(value).Kind() {
+			case reflect.Map:
+				if nestedMap, ok := value.(map[string]interface{}); ok {
+					d.FlattenTheMap(nestedMap, newKey, separator)
 				}
+			case reflect.Slice:
+				s := reflect.ValueOf(value)
+				for i := 0; i < s.Len(); i++ {
+					arrayKey := newKey + separator + strconv.Itoa(i)
+					if nestedMap, ok := s.Index(i).Interface().(map[string]interface{}); ok {
+						d.FlattenTheMap(nestedMap, arrayKey, separator)
+					} else {
+						d.Data[arrayKey] = s.Index(i).Interface()
+					}
+				}
+			default:
+				d.Data[newKey] = value
 			}
-		default:
-			d.Data[newKey] = value
 		}
 	}
 }
