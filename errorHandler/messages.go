@@ -40,11 +40,22 @@ func (e *Error) AddL10n(v string, local string, localeValidator string) {
 	e.L10n = errL10n
 }
 
+func (e *Error) ErrorExists(local string, message string) bool {
+	if e.Message[Locale(local)] == message {
+		return true
+	} else {
+		return false
+	}
+}
+
 func (e *Error) AddMessage(local string, message string) {
 	if e.Message == nil {
 		e.Message = make(map[Locale]string)
 	}
-	e.Message[Locale(local)] = message
+
+	if !e.ErrorExists(local, message) {
+		e.Message[Locale(local)] = message
+	}
 }
 func (e *Error) updateData(target string) Target {
 	var t string
