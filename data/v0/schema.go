@@ -143,7 +143,7 @@ func (f *Field) Validate(value interface{}, allValidators map[string]validators.
 		}
 		if f.IsRequired && value == nil {
 			err.Validator = "Required"
-			err.AddMessage("en", fmt.Sprintf("'%s' is a required field", f.DisplayName))
+			err.AddMessage("en", fmt.Sprintf("missing required field"))
 			f.logging.DEBUG("Field is required but value is null")
 			return &err
 		}
@@ -167,7 +167,7 @@ func (f *Field) Validate(value interface{}, allValidators map[string]validators.
 		constants.Attributes["DB"] = db
 		fnError := fn(value, constants.Attributes)
 		f.logging.DEBUG("fnError: ", fnError)
-		if fnError != nil && fnError.Error() != ""  {
+		if fnError != nil && fnError.Error() != "" {
 			err.AddMessage("en", fnError.Error())
 			if constants.Error != "" {
 				f.logging.DEBUG("Custom Error is Defined", constants.Error)
@@ -258,7 +258,7 @@ func (s *Schematics) ValidateObject(jsonData *map[string]interface{}, id *string
 		s.Logging.DEBUG("matching keys --> ", matchingKeys)
 		if len(matchingKeys) == 0 {
 			if field.IsRequired {
-				baseError.AddMessage("en", fmt.Sprintf("'%s' field is required", target))
+				baseError.AddMessage("en", fmt.Sprintf("field is required"))
 				errorMessages.AddError(string(target), baseError)
 			}
 			continue
