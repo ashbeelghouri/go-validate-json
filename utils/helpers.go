@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -131,20 +132,36 @@ func ConvertKeyToRegex(key string) string {
 	// Escape special regex characters in the key except for *
 	escapedKey := regexp.QuoteMeta(key)
 	// Replace * with \d+ to match array indices
-	regexPattern := strings.ReplaceAll(escapedKey, `\*`, `\d+`)
+	regexPattern := strings.ReplaceAll(escapedKey, `\*`, `\w+$`)
 	// Add start and end of line anchors
 
 	regexPattern = "^" + regexPattern + "$"
 	return regexPattern
 }
 
-func FindMatchingKeys(data map[string]interface{}, keyPattern string) map[string]interface{} {
+func FindMatchingKeys(data map[string]interface{}, keyPattern string, separator string) map[string]interface{} {
 	matchingKeys := make(map[string]interface{})
+	nestedKeys := make(map[string]interface{})
 	re := regexp.MustCompile(ConvertKeyToRegex(keyPattern))
+	// Collect all matching keys
 	for key, value := range data {
 		if re.MatchString(key) {
 			matchingKeys[key] = value
+		} else if strings.HasPrefix(key, keyPattern+separator) {
+			nestedKeys[key] = value
 		}
+	}
+
+	if len(nestedKeys) > 0 {
+		nest := make(map[string]interface{})
+
+		for key, value := range nestedKeys {
+			log.Println("key:", key, "keyPattern: ", keyPattern, "separator: ", separator)
+			trimmedKey := strings.TrimPrefix(key, keyPattern+separator)
+			nest[trimmedKey] = value
+		}
+
+		matchingKeys[keyPattern] = nest
 	}
 	return matchingKeys
 }
@@ -248,4 +265,33 @@ func CombineTwoMaps(map1 map[string]interface{}, map2 map[string]interface{}) ma
 		finalMap[key] = m
 	}
 	return finalMap
+}
+
+func InterfaceToJsonString(i interface{}) string {
+	iBytes, err := json.MarshalIndent(i, "", "  ")
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	return string(iBytes)
+}
+
+func FindUniqueElements(array1 []string, array2 []string) []string {
+	// Create a map (set) to store elements of array2
+	set := make(map[string]bool)
+	for _, value := range array2 {
+		set[value] = true
+	}
+
+	// Slice to store unique elements from array1
+	var uniqueElements []string
+
+	// Iterate over array1 and check if element exists in set (array2)
+	for _, value := range array1 {
+		if !set[value] { // If element is not in set (array2), add it to the result
+			uniqueElements = append(uniqueElements, value)
+		}
+	}
+
+	return uniqueElements
 }

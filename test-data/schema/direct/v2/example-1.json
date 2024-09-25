@@ -7,27 +7,9 @@
     "required": false,
     "add_to_db": true,
     "depends_on": [],
-    "target_key": "user.profile.name.first",
+    "target_key": "user.profile.name",
     "description": "",
-    "validators": [{
-      "name": "IsString"
-    }, {
-      "name": "customFunc"
-    }, {
-      "name": "MaxLengthAllowed",
-      "attributes": {
-        "max": 20
-      },
-      "error": "user's first name should have maximum 20 characters",
-      "l10n": {
-        "name": {
-          "ar": "شسيشس"
-        },
-        "error": {
-          "ar": "سي شسيشسشسيش شسيشس شسيضصثضصث قفلربل ٦ع لبلا ثفق"
-        }
-      }
-    }],
+    "validators": [],
     "operators": [{
       "name": "Capitalize"
     }],
@@ -42,6 +24,12 @@
     "depends_on": [],
     "required": false,
     "target_key": "user.profile.name.last",
+    "conditions": [{
+      "name": "FieldIsProvided",
+      "attributes": {
+        "shouldBeProvided": "user.profile.name"
+      }
+    }],
     "description": "",
     "validators": [{
       "name": "IsString"
