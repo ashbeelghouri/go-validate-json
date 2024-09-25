@@ -38,8 +38,14 @@ type Field struct {
 	Description           string                 `json:"description"`
 	Validators            []Component            `json:"validators"`
 	Operators             []Component            `json:"operators"`
+	Conditions            []Condition            `json:"conditions"`
 	L10n                  map[string]interface{} `json:"l10n"`
 	AdditionalInformation map[string]interface{} `json:"additional_information"`
+}
+
+type Condition struct {
+	Name       string                 `json:"name"`
+	Attributes map[string]interface{} `json:"attributes"`
 }
 
 type ComponentLocale struct {
@@ -125,6 +131,7 @@ func transformSchema(schema Schema) *v0.Schema {
 			Description:           field.Description,
 			Validators:            transformComponents(field.Validators),
 			Operators:             transformComponents(field.Operators),
+			Conditions:            transformConditions(field.Conditions),
 			L10n:                  field.L10n,
 			AdditionalInformation: field.AdditionalInformation,
 		}
@@ -147,6 +154,16 @@ func transformComponents(comp []Component) map[string]v0.Constant {
 			Attributes: c.Attributes,
 			Error:      c.Error,
 			L10n:       CreateConstantLocale(c.L10n),
+		}
+	}
+	return con
+}
+
+func transformConditions(cond []Condition) map[string]v0.Condition {
+	con := make(map[string]v0.Condition)
+	for _, c := range cond {
+		con[c.Name] = v0.Condition{
+			Attributes: c.Attributes,
 		}
 	}
 	return con

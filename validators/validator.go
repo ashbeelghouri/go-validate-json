@@ -42,9 +42,13 @@ func (v *Validators) BasicValidators() {
 
 	// Number Validators
 	v.RegisterValidator("IsNumber", IsNumber)
+	v.RegisterValidator("IsInteger", IsInteger)
+	v.RegisterValidator("IsFloat", IsFloat)
 	v.RegisterValidator("MaxAllowed", MaxAllowed)
 	v.RegisterValidator("MinAllowed", MinAllowed)
 	v.RegisterValidator("InBetween", InBetween)
+	v.RegisterValidator("IsGreaterThanZero", IsGreaterThanZero)
+	v.RegisterValidator("IsLesserThanZero", IsLesserThanZero)
 
 	// Date Validators
 	v.RegisterValidator("IsValidDate", IsValidDate)

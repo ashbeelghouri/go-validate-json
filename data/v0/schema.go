@@ -2,7 +2,9 @@ package v0
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/ashbeelghouri/jsonschematics/conditions"
 	"github.com/ashbeelghouri/jsonschematics/errorHandler"
 	"github.com/ashbeelghouri/jsonschematics/operators"
 	"github.com/ashbeelghouri/jsonschematics/utils"
@@ -10,6 +12,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 )
 
 type TargetKey string
@@ -18,10 +21,13 @@ type Schematics struct {
 	Schema     Schema
 	Validators validators.Validators
 	Operators  operators.Operators
+	Conditions conditions.Conditions
 	Separator  string
 	ArrayIdKey string
 	Locale     string
 	DB         map[string]interface{}
+	FlatData   map[string]interface{}
+	UnFlatData map[string]interface{}
 	Logging    utils.Logger
 }
 
@@ -35,6 +41,7 @@ type Schema struct {
 
 type Field struct {
 	DependsOn             []string               `json:"depends_on"`
+	Target                string                 `json:"target"`
 	DisplayName           string                 `json:"display_name"`
 	Name                  string                 `json:"name"`
 	Type                  string                 `json:"type"`
@@ -45,7 +52,30 @@ type Field struct {
 	Operators             map[string]Constant    `json:"operators"`
 	L10n                  map[string]interface{} `json:"l10n"`
 	AdditionalInformation map[string]interface{} `json:"additional_information"`
+	Conditions            map[string]Condition   `json:"conditions"`
+	Tags                  []string               `json:"tags"`
+	Value                 map[string]interface{} `json:"value"`
+	Provided              bool
+	Status                string
+	Errors                errorHandler.Errors
 	logging               utils.Logger
+}
+
+func (f *Field) AsMap() *map[string]interface{} {
+	var _map map[string]interface{}
+	_bytes, err := json.Marshal(f)
+	if err != nil {
+		return nil
+	}
+	err = json.Unmarshal(_bytes, &_map)
+	if err != nil {
+		return nil
+	}
+	return &_map
+}
+
+type Condition struct {
+	Attributes map[string]interface{} `json:"attributes"`
 }
 
 type ConstantL10n struct {
@@ -59,6 +89,11 @@ type Constant struct {
 	L10n       ConstantL10n           `json:"l10n"`
 }
 
+//func (s *Schematics) autoTag() {
+//	s.Schema.Fields
+// add the search tags
+//}
+
 func (s *Schematics) Configs() {
 	if s.Logging.PrintDebugLogs {
 		log.Println("debugger is on")
@@ -68,6 +103,11 @@ func (s *Schematics) Configs() {
 	}
 	s.Validators.Logger = s.Logging
 	s.Operators.Logger = s.Logging
+
+	if s.Separator == "" {
+		s.Separator = "."
+	}
+
 }
 
 func (s *Schematics) LoadJsonSchemaFile(path string) error {
@@ -87,6 +127,7 @@ func (s *Schematics) LoadJsonSchemaFile(path string) error {
 	s.Schema = schema
 	s.Validators.BasicValidators()
 	s.Operators.LoadBasicOperations()
+	s.Conditions.BasicConditions()
 	if s.Separator == "" {
 		s.Separator = "."
 	}
@@ -112,6 +153,7 @@ func (s *Schematics) LoadMap(schemaMap interface{}) error {
 	s.Schema = schema
 	s.Validators.BasicValidators()
 	s.Operators.LoadBasicOperations()
+	s.Conditions.BasicConditions()
 	if s.Separator == "" {
 		s.Separator = "."
 	}
@@ -123,86 +165,136 @@ func (s *Schematics) LoadMap(schemaMap interface{}) error {
 
 // if validators >>> if passed then do *
 
-func (f *Field) Validate(value interface{}, allValidators map[string]validators.Validator, id *string, db map[string]interface{}) *errorHandler.Error {
-	var err errorHandler.Error
-	err.Value = value
-	err.ID = id
-	err.Validator = "unknown"
-	if f.Validators == nil {
-		err.AddMessage("en", "no validators defined")
-		return &err
+func fnExists(name string, allValidators map[string]validators.Validator) bool {
+	_, exists := allValidators[name]
+	if !exists {
+		return false
 	}
-	for name, constants := range f.Validators {
-		err.Validator = name
-		f.logging.DEBUG("Validator", name, constants)
-		if name == "" {
-			f.logging.DEBUG("Name of the validator is not given: ", name)
-			err.Validator = name
-			err.AddMessage("en", "no validator name given")
-			return &err
-		}
-		if f.IsRequired && value == nil {
-			err.Validator = "Required"
-			err.AddMessage("en", "this is a required field")
-			f.logging.DEBUG("Field is required but value is null")
-			return &err
-		}
+	return true
+}
 
-		if utils.StringInStrings(strings.ToUpper(name), utils.ExcludedValidators) {
+func (f *Field) validateSingleFieldValue(targetID interface{}, value interface{}, allValidators map[string]validators.Validator, db map[string]interface{}, wg *sync.WaitGroup, errChan chan *errorHandler.Error) {
+	defer wg.Done()
+
+	var errorMessage errorHandler.Error
+	for name, constants := range f.Validators {
+		// Early exit if validation name is empty, excluded, or not found in allValidators
+		if name == "" || utils.StringInStrings(strings.ToUpper(name), utils.ExcludedValidators) || !fnExists(name, allValidators) {
 			continue
 		}
 
-		var fn validators.Validator
-		fn, exists := allValidators[name]
-		f.logging.DEBUG("function exists? ", exists)
-		if !exists {
-			f.logging.ERROR("function not found", name)
-			err.AddMessage("en", "validator not registered")
-			return &err
-		}
+		errorMessage.ID = targetID
+		errorMessage.Value = value
+		errorMessage.Validator = name
 
+		// Set up attributes for validation
 		if constants.Attributes == nil {
 			constants.Attributes = make(map[string]interface{})
 		}
 		constants.Attributes["DB"] = db
-		fnError := fn(value, constants.Attributes)
-		f.logging.DEBUG("fnError: ", fnError)
-		if fnError != nil {
-			err.AddMessage("en", fnError.Error())
+
+		// Execute the validator function
+		fn := allValidators[name]
+		err := fn(value, constants.Attributes)
+
+		// Handle validation errors
+		if err != nil {
+			// Set custom error message if available
 			if constants.Error != "" {
-				f.logging.DEBUG("Custom Error is Defined", constants.Error)
-				err.AddMessage("en", constants.Error)
+				errorMessage.AddMessage("en", constants.Error)
 			}
 
+			// Handle localization (L10n) if present
 			if f.L10n != nil {
 				for locale, msg := range constants.L10n.Error {
 					if msg != nil {
-						f.logging.DEBUG("Error L10n: ", locale, msg)
-						err.AddMessage(locale, msg.(string))
+						errorMessage.AddMessage(locale, msg.(string))
 					}
 				}
-
-				for local, v := range constants.L10n.Name {
-					if v != nil {
-						f.logging.DEBUG("Validator L10n: ", local, v)
-						err.AddL10n(name, local, v.(string))
+				for locale, nameValue := range constants.L10n.Name {
+					if nameValue != nil {
+						errorMessage.AddL10n(name, locale, nameValue.(string))
 					}
 				}
 			}
-			return &err
+
+			// Send the error message to the error channel
+			errChan <- &errorMessage
+			return // Exit after handling the first error
+		}
+	}
+
+	// If no error, return nil to signal success
+	errChan <- nil
+}
+
+func (f *Field) Validate(allValidators map[string]validators.Validator, id *string, db map[string]interface{}) error {
+	if f.Validators == nil {
+		return errors.New("no validators defined")
+	}
+	errorChannel := make(chan *errorHandler.Error)
+	var wg sync.WaitGroup
+	for targetID, value := range f.Value {
+		wg.Add(1)
+		go f.validateSingleFieldValue(targetID, value, allValidators, db, &wg, errorChannel)
+	}
+
+	go func() {
+		wg.Wait()
+		close(errorChannel)
+	}()
+
+	for vErr := range errorChannel {
+		if vErr != nil {
+			f.Errors.AddError(f.Target, *vErr)
+			f.Status = "failed"
 		}
 	}
 	return nil
 }
 
 func (s *Schematics) makeFlat(data map[string]interface{}) *map[string]interface{} {
+	if s.Separator == "" {
+		s.Separator = "."
+	}
 	var dMap utils.DataMap
 	dMap.FlattenTheMap(data, "", s.Separator)
+	s.FlatData = dMap.Data
 	return &dMap.Data
 }
 
 func (s *Schematics) deflate(data map[string]interface{}) map[string]interface{} {
-	return utils.DeflateMap(data, s.Separator)
+	unFlatData := utils.DeflateMap(data, s.Separator)
+	s.UnFlatData = unFlatData
+	return unFlatData
+}
+
+func (s *Schematics) AssignData(data map[string]interface{}) error {
+	flatData := s.makeFlat(data)
+	log.Println("successfully transformed to flat data:", *flatData)
+	var fields = make(map[TargetKey]Field)
+
+	if s.Separator == "" {
+		s.Separator = "."
+	}
+
+	for target, field := range s.Schema.Fields {
+		var f = field
+		matchingKeys := utils.FindMatchingKeys(*flatData, string(target), s.Separator)
+		f.Value = matchingKeys
+		log.Println("matching keys ???", matchingKeys, "separator: ", s.Separator)
+		if len(matchingKeys) > 0 {
+			f.Provided = true
+		}
+
+		fields[target] = f
+	}
+
+	s.Logging.DEBUG("schema fields: ", utils.InterfaceToJsonString(fields))
+
+	s.Schema.Fields = fields
+
+	return nil
 }
 
 func (s *Schematics) Validate(jsonData interface{}) *errorHandler.Errors {
@@ -235,63 +327,80 @@ func (s *Schematics) Validate(jsonData interface{}) *errorHandler.Errors {
 	}
 }
 
+func (s *Schematics) GetValidatedFieldTargets() []string {
+	var targets []string
+	for target, field := range s.Schema.Fields {
+		if field.Provided && field.Errors.HasErrors() == false {
+			targets = append(targets, string(target))
+		}
+	}
+	return targets
+}
+
+func (f *Field) ConditionalPassage(allConditions conditions.Conditions, schema Schema) bool {
+	if len(f.Conditions) > 0 {
+		f.logging.DEBUG("inside conditions")
+		for name, value := range f.Conditions {
+			f.logging.DEBUG("performing conditions", name)
+			if fn, ok := allConditions.ConditionFns[name]; ok {
+				attrs := value.Attributes
+				attrs["schema"] = schema
+
+				if !fn(*f.AsMap(), attrs) {
+					return false
+				}
+			}
+		}
+	}
+	return true
+}
+
 func (s *Schematics) ValidateObject(jsonData *map[string]interface{}, id *string) *errorHandler.Errors {
-	s.Logging.DEBUG("validating the object")
 	var errorMessages errorHandler.Errors
 	var baseError errorHandler.Error
 	flatData := *s.makeFlat(*jsonData)
-	s.Logging.DEBUG("here after flat data --> ", flatData)
+	err := s.AssignData(flatData)
+	if err != nil {
+		baseError.AddMessage("en", err.Error())
+		errorMessages.AddError("flattening", baseError)
+		return &errorMessages
+	}
+
 	uniqueID := ""
 
 	if id != nil {
 		uniqueID = *id
 	}
-	s.Logging.DEBUG("after unique id")
-
 	db := s.Schema.GetDB(flatData)
+	targets := s.GetValidatedFieldTargets()
 
-	var missingFromDependants []string
 	for target, field := range s.Schema.Fields {
-		field.logging = s.Logging
-		baseError.Validator = "is-required"
-		matchingKeys := utils.FindMatchingKeys(flatData, string(target))
-		s.Logging.DEBUG("matching keys --> ", matchingKeys)
-		if len(matchingKeys) == 0 {
-			if field.IsRequired {
-				baseError.AddMessage("en", "this field is required")
-				errorMessages.AddError(string(target), baseError)
-			}
+		if !field.ConditionalPassage(s.Conditions, s.Schema) {
 			continue
 		}
-		s.Logging.DEBUG("after is required --> ", matchingKeys)
-		//	check for dependencies
+
 		if len(field.DependsOn) > 0 {
-			missing := false
-			for _, d := range field.DependsOn {
-				matchDependsOn := utils.FindMatchingKeys(flatData, d)
-				if !(utils.StringInStrings(string(target), missingFromDependants) == false && len(matchDependsOn) > 0) {
-					s.Logging.DEBUG("matched depends on", matchDependsOn)
-					baseError.Validator = "depends-on"
-					baseError.AddMessage("en", "this field depends on other values which do not exists")
-					errorMessages.AddError(string(target), baseError)
-					missingFromDependants = append(missingFromDependants, string(target))
-					missing = true
-					break
-				}
-			}
-			if missing {
+			missingDependencies := utils.FindUniqueElements(field.DependsOn, targets)
+			if len(missingDependencies) > 0 {
+				baseError.AddMessage("en", fmt.Sprintf("missing dependencies (%s) for %s", target, strings.Join(missingDependencies, ",")))
 				continue
 			}
 		}
 
-		for key, value := range matchingKeys {
-			validationError := field.Validate(value, s.Validators.ValidationFns, &uniqueID, db)
-			s.Logging.DEBUG(validationError)
-			if validationError != nil {
-				errorMessages.AddError(key, *validationError)
-			}
+		field.Target = string(target)
+		field.logging = s.Logging
+		baseError.Validator = "is-required"
+		if field.IsRequired && !field.Provided {
+			baseError.AddMessage("en", "please provide the value for this required field")
 		}
-
+		err := field.Validate(s.Validators.ValidationFns, &uniqueID, db)
+		if err != nil {
+			baseError.Validator = "common"
+			baseError.AddMessage("en", err.Error())
+		}
+		if field.Errors.HasErrors() {
+			errorMessages.MergeErrors(&field.Errors)
+		}
 	}
 
 	if errorMessages.HasErrors() {
@@ -300,12 +409,12 @@ func (s *Schematics) ValidateObject(jsonData *map[string]interface{}, id *string
 	return nil
 }
 
-// Corrected and completed GetDB function
+// GetDB Corrected and completed function
 func (s *Schema) GetDB(flatData map[string]interface{}) map[string]interface{} {
 	db := s.DB
 	for target, field := range s.Fields {
 		if field.AddToDB {
-			matchingKeys := utils.FindMatchingKeys(flatData, string(target))
+			matchingKeys := utils.FindMatchingKeys(flatData, string(target), ".")
 			if len(matchingKeys) < 2 {
 				mappedKey := utils.GetFirstFromMap(matchingKeys)
 				if mappedKey != nil {
@@ -417,7 +526,7 @@ func (s *Schematics) Operate(data interface{}) (interface{}, *errorHandler.Error
 func (s *Schematics) OperateOnObject(data map[string]interface{}) *map[string]interface{} {
 	data = *s.makeFlat(data)
 	for target, field := range s.Schema.Fields {
-		matchingKeys := utils.FindMatchingKeys(data, string(target))
+		matchingKeys := utils.FindMatchingKeys(data, string(target), s.Separator)
 		for key, value := range matchingKeys {
 			data[key] = field.Operate(value, s.Operators.OpFunctions)
 		}
