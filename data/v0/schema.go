@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-  "github.com/ashbeelghouri/DScale-io/conditions"
+  	"github.com/DScale-io/jsonschematics/conditions"
 	"github.com/DScale-io/jsonschematics/errorHandler"
 	"github.com/DScale-io/jsonschematics/operators"
 	"github.com/DScale-io/jsonschematics/utils"
