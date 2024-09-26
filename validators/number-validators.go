@@ -45,7 +45,7 @@ func convertToFloat64(i interface{}) *float64 {
 	case float32:
 		result = float64(v)
 	case float64:
-		result = v
+		result = float64(v)
 	default:
 		return nil
 	}
@@ -54,44 +54,26 @@ func convertToFloat64(i interface{}) *float64 {
 
 func IsInteger(i interface{}, _ map[string]interface{}) error {
 	typeOfInterface := reflect.TypeOf(i).String()
-	switch typeOfInterface {
-	case "int":
-		return nil
-	case "int8":
-		return nil
-	case "int16":
-		return nil
-	case "int32":
-		return nil
-	case "int64":
-		return nil
-	case "uint":
-		return nil
-	case "uint8":
-		return nil
-	case "uint16":
-		return nil
-	case "uint32":
-		return nil
-	case "uint64":
-		return nil
-	default:
-		return errors.New("value is not an integer")
-	}	
-	return nil
+
+	for _, t := range NumberTypes["integer"] {
+		if t == typeOfInterface {
+			return nil
+		}
+	}
+
+	return errors.New("value is not an integer")
 }
 
 func IsFloat(i interface{}, _ map[string]interface{}) error {
 	typeOfInterface := reflect.TypeOf(i).String()
-	switch typeOfInterface {
-	case "float32":
-		return nil
-	case "float64":
-		return nil
-	default:
-		return errors.New("value is not an integer")
-	}		
-	return nil
+
+	for _, t := range NumberTypes["float"] {
+		if t == typeOfInterface {
+			return nil
+		}
+	}
+
+	return errors.New("value is not a floating number")
 }
 
 func IsNumber(i interface{}, attr map[string]interface{}) error {
