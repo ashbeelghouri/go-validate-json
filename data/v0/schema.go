@@ -18,20 +18,25 @@ import (
 type TargetKey string
 
 type Schematics struct {
-	Schema     Schema
-	Validators validators.Validators
-	Operators  operators.Operators
-	Conditions conditions.Conditions
-	Separator  string
-	ArrayIdKey string
-	Locale     string
-	DB         map[string]interface{}
-	FlatData   map[string]interface{}
-	UnFlatData map[string]interface{}
-	Logging    utils.Logger
+	Schema      Schema
+	Validators  validators.Validators
+	Operators   operators.Operators
+	Conditions  conditions.Conditions
+	Separator   string
+	ArrayIdKey  string
+	Locale      string
+	Flexibility Flexibility
+	DB          map[string]interface{}
+	FlatData    map[string]interface{}
+	UnFlatData  map[string]interface{}
+	Logging     utils.Logger
 }
 
 // add this DB to the attributes as SCHEMA_GLOBAL_DB
+
+type Flexibility struct {
+	Type bool
+}
 
 type Schema struct {
 	Version string                 `json:"version"`
